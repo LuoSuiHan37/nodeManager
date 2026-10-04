@@ -44,4 +44,7 @@
 ```powershell
 dotnet restore NoteManager.sln
 dotnet build NoteManager\NoteManager.csproj -c Debug
-<img width="1323" height="726" alt="image" src="https://github.com/user-attachments/assets/0313597a-969b-4961-ac2c-2c03fdbb651e" />
+
+
+<img width="1326" height="718" alt="image" src="https://github.com/user-attachments/assets/16e166c2-b8bc-4043-8749-2377b1616bbe" />
+
