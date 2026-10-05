@@ -263,6 +263,7 @@
                                           VerticalAlignment="Center"
                                           SelectedIndex="2"
                                           SelectionChanged="FontSizeCombo_SelectionChanged"
+                                          DropDownClosed="FontSizeCombo_DropDownClosed"
                                           ToolTipService.ToolTip="调整选中文字大小">
                                     <x:Double>12</x:Double>
                                     <x:Double>14</x:Double>

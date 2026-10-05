@@ -251,6 +251,80 @@ public sealed partial class MainWindow : Window
         selection.EndPosition = start + 2;
     }
 
+    /// <summary>
+    /// 读取选区/光标处「字符真实字号」，避免沿用上一次的待输入格式。
+    /// 混合字号时返回 null。
+    /// </summary>
+    private double? GetActualSelectionFontSize()
+    {
+        var selection = EditorBox.Document.Selection;
+        var start = selection.StartPosition;
+        var end = selection.EndPosition;
+
+        EditorBox.Document.GetText(TextGetOptions.None, out var allText);
+        var length = allText?.Length ?? 0;
+        if (length <= 0)
+        {
+            return Math.Round(selection.CharacterFormat.Size);
+        }
+
+        // 光标：读右侧字符，否则读左侧字符（真实字形格式）
+        if (start == end)
+        {
+            if (start < length)
+            {
+                return Math.Round(EditorBox.Document.GetRange(start, start + 1).CharacterFormat.Size);
+            }
+
+            if (start > 0)
+            {
+                return Math.Round(EditorBox.Document.GetRange(start - 1, start).CharacterFormat.Size);
+            }
+
+            return Math.Round(selection.CharacterFormat.Size);
+        }
+
+        var first = Math.Round(EditorBox.Document.GetRange(start, start + 1).CharacterFormat.Size);
+        var last = Math.Round(EditorBox.Document.GetRange(Math.Max(start, end - 1), end).CharacterFormat.Size);
+        if (Math.Abs(first - last) > 0.5)
+        {
+            return null; // 混合字号
+        }
+
+        return first;
+    }
+
+    private int FindFontSizeComboIndex(double size)
+    {
+        for (var i = 0; i < FontSizeCombo.Items.Count; i++)
+        {
+            if (TryGetComboDouble(FontSizeCombo.Items[i], out var d) && Math.Abs(d - size) < 0.5)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private static bool TryGetComboDouble(object? item, out double value)
+    {
+        switch (item)
+        {
+            case double d:
+                value = d;
+                return true;
+            case float f:
+                value = f;
+                return true;
+            case int i:
+                value = i;
+                return true;
+            default:
+                return double.TryParse(item?.ToString(), out value);
+        }
+    }
+
     private void SyncFontSizeComboFromSelection()
     {
         if (_suppressEditorEvents)
@@ -260,18 +334,18 @@ public sealed partial class MainWindow : Window
 
         try
         {
-            var size = Math.Round(EditorBox.Document.Selection.CharacterFormat.Size);
+            var actual = GetActualSelectionFontSize();
             _suppressFontSizeEvent = true;
-            for (var i = 0; i < FontSizeCombo.Items.Count; i++)
-            {
-                if (FontSizeCombo.Items[i] is double d && Math.Abs(d - size) < 0.5)
-                {
-                    if (FontSizeCombo.SelectedIndex != i)
-                    {
-                        FontSizeCombo.SelectedIndex = i;
-                    }
 
-                    break;
+            // 先清空，保证之后即使再选同一字号也会触发 SelectionChanged
+            FontSizeCombo.SelectedIndex = -1;
+
+            if (actual is double size)
+            {
+                var index = FindFontSizeComboIndex(size);
+                if (index >= 0)
+                {
+                    FontSizeCombo.SelectedIndex = index;
                 }
             }
         }
@@ -281,9 +355,32 @@ public sealed partial class MainWindow : Window
         }
         finally
         {
-            // 推迟解除，避免 ComboBox SelectionChanged 异步落到 false 之后
             DispatcherQueue.TryEnqueue(() => _suppressFontSizeEvent = false);
         }
+    }
+
+    private void ApplyFontSizeFromCombo(bool force)
+    {
+        if (!force && (_suppressFontSizeEvent || _suppressEditorEvents))
+        {
+            return;
+        }
+
+        if (_suppressEditorEvents)
+        {
+            return;
+        }
+
+        var selection = GetEditorSelection();
+        if (selection is null || !TryGetComboDouble(FontSizeCombo.SelectedItem, out var size))
+        {
+            return;
+        }
+
+        // 对选区直接写入真实字号（含「选中同一字号再次应用」）
+        selection.CharacterFormat.Size = (float)size;
+        ViewModel.Editor.NotifyBodyEdited();
+        SyncFontSizeComboFromSelection();
     }
 
 
@@ -717,20 +814,13 @@ public sealed partial class MainWindow : Window
 
     private void FontSizeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_suppressFontSizeEvent || _suppressEditorEvents)
-        {
-            return;
-        }
+        ApplyFontSizeFromCombo(force: false);
+    }
 
-        var selection = GetEditorSelection();
-        if (selection is null || FontSizeCombo.SelectedItem is not double size)
-        {
-            return;
-        }
-
-        // 仅改变选区/插入点格式，空选区不插入占位字，避免打断继续输入
-        selection.CharacterFormat.Size = (float)size;
-        ViewModel.Editor.NotifyBodyEdited();
+    private void FontSizeCombo_DropDownClosed(object sender, object e)
+    {
+        // 关闭下拉时强制再应用一次：解决「当前显示已是 20，再选 20 不触发变更」的问题
+        ApplyFontSizeFromCombo(force: true);
     }
 
     private void FormatColor_Click(object sender, RoutedEventArgs e)
