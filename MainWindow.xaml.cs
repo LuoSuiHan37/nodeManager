@@ -21,6 +21,10 @@ public sealed partial class MainWindow : Window
 {
     public MainViewModel ViewModel { get; }
 
+    private readonly IAiService _aiService;
+    private readonly INoteService _noteService;
+    private readonly IFolderService _folderService;
+
     private bool _suppressEditorEvents;
     private bool _suppressFontSizeEvent;
     private bool _suppressNoteListSelection;
@@ -31,6 +35,9 @@ public sealed partial class MainWindow : Window
     public MainWindow(MainViewModel viewModel)
     {
         ViewModel = viewModel;
+        _aiService = AppServices.GetRequiredService<IAiService>();
+        _noteService = AppServices.GetRequiredService<INoteService>();
+        _folderService = AppServices.GetRequiredService<IFolderService>();
         InitializeComponent();
         try { AppWindow.SetIcon("Assets/AppIcon.ico"); } catch { }
         ApplyWindowBounds();
@@ -758,6 +765,114 @@ public sealed partial class MainWindow : Window
         {
             Log.Error(ex, "打开保存目录失败");
             StatusText.Text = "打开目录失败";
+        }
+    }
+
+    private async void AiSettings_Click(object sender, RoutedEventArgs e)
+    {
+        var settings = _aiService.Settings;
+        var enabled = new CheckBox { Content = "启用 AI", IsChecked = settings.Enabled };
+        var endpoint = new TextBox { Header = "接口地址（OpenAI 兼容）", Text = settings.Endpoint, PlaceholderText = "例如 http://localhost:11434/v1" };
+        var model = new TextBox { Header = "对话模型", Text = settings.Model };
+        var embedding = new TextBox { Header = "Embedding 模型", Text = settings.EmbeddingModel };
+        var apiKey = new PasswordBox { Header = "API Key（也可使用环境变量 NOTE_MANAGER_AI_API_KEY）", Password = settings.ApiKey };
+        var cloud = new CheckBox { Content = "允许发送内容到云端服务", IsChecked = settings.AllowCloud, IsThreeState = false };
+        var panel = new StackPanel { Spacing = 10, Width = 520 };
+        panel.Children.Add(new TextBlock { Text = "支持 OpenAI、Ollama、LM Studio 等 OpenAI 兼容接口。涉及密钥的笔记请优先使用本地模型。", TextWrapping = TextWrapping.Wrap, Opacity = 0.75 });
+        panel.Children.Add(enabled); panel.Children.Add(endpoint); panel.Children.Add(model); panel.Children.Add(embedding); panel.Children.Add(apiKey); panel.Children.Add(cloud);
+        var dialog = Dialog("AI 设置", panel, "保存");
+        dialog.CloseButtonText = "取消";
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+        await AppServices.GetRequiredService<ISettingsService>().UpdateAsync(s =>
+        {
+            s.Ai.Enabled = enabled.IsChecked == true;
+            s.Ai.Endpoint = endpoint.Text.Trim();
+            s.Ai.Model = model.Text.Trim();
+            s.Ai.EmbeddingModel = embedding.Text.Trim();
+            s.Ai.ApiKey = apiKey.Password.Trim();
+            s.Ai.AllowCloud = cloud.IsChecked != false;
+        });
+        StatusText.Text = "AI 设置已保存";
+    }
+
+    private async void ShowAiAssistant_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.Editor.FlushPendingSaveAsync();
+        if (!ViewModel.Editor.HasNote || ViewModel.Editor.IsDeleted)
+        {
+            StatusText.Text = "请先选择一篇可编辑的笔记";
+            return;
+        }
+
+        var operation = new ComboBox { Header = "操作", Width = 300, SelectedIndex = 0 };
+        operation.Items.Add("总结当前笔记");
+        operation.Items.Add("改写当前笔记");
+        operation.Items.Add("生成标题");
+        operation.Items.Add("提取待办");
+        operation.Items.Add("生成标签");
+        operation.Items.Add("推荐文件夹");
+        operation.Items.Add("建立全库知识索引");
+        operation.Items.Add("向我的笔记提问");
+        var prompt = new TextBox { Header = "补充要求 / 问题（可选）", AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, Height = 90, PlaceholderText = "例如：用更简洁的技术文档风格改写" };
+        var panel = new StackPanel { Spacing = 12, Width = 520 };
+        panel.Children.Add(new TextBlock { Text = "AI 会处理当前编辑器中的内容。生成结果会先展示，确认后才写入笔记。", TextWrapping = TextWrapping.Wrap, Opacity = 0.75 });
+        panel.Children.Add(operation); panel.Children.Add(prompt);
+        var dialog = Dialog("AI 助手", panel, "执行");
+        dialog.CloseButtonText = "取消";
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+
+        try
+        {
+            var choice = operation.SelectedItem?.ToString() ?? string.Empty;
+            var content = ReadEditorPlain();
+            string result;
+            if (choice == "建立全库知识索引")
+            {
+                var notes = await _noteService.GetNotesAsync(NoteFilterKind.All);
+                var count = await _aiService.BuildKnowledgeIndexAsync(notes);
+                StatusText.Text = $"已建立 {count} 条笔记的知识索引";
+                return;
+            }
+            if (choice == "向我的笔记提问")
+            {
+                var notes = await _noteService.GetNotesAsync(NoteFilterKind.All);
+                result = await _aiService.AskKnowledgeAsync(prompt.Text.Trim(), notes);
+            }
+            else
+            {
+                result = choice switch
+                {
+                    "总结当前笔记" => await _aiService.SummarizeAsync(content),
+                    "改写当前笔记" => await _aiService.RewriteAsync(content, string.IsNullOrWhiteSpace(prompt.Text) ? "清晰、专业" : prompt.Text.Trim()),
+                    "生成标题" => await _aiService.GenerateTitleAsync(content),
+                    "提取待办" => await _aiService.ExtractTodosAsync(content),
+                    "生成标签" => await _aiService.GenerateTagsAsync(content),
+                    "推荐文件夹" => await _aiService.SuggestFolderAsync(content, (await _folderService.GetAllAsync()).Select(f => f.Name)),
+                    _ => throw new InvalidOperationException("未知 AI 操作")
+                };
+            }
+
+            var resultBox = new TextBox { Text = result, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, IsReadOnly = true, Height = 300, Width = 600 };
+            var resultDialog = Dialog("AI 结果", resultBox, choice is "生成标题" ? "设置标题" : "插入到正文");
+            resultDialog.CloseButtonText = "关闭";
+            if (await resultDialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                if (choice == "生成标题")
+                {
+                    TitleBox.Text = result.Trim().Trim('"');
+                }
+                else
+                {
+                    var selection = EditorBox.Document.Selection;
+                    selection.SetText(TextSetOptions.None, "\n\n" + result.Trim() + "\n");
+                    ViewModel.Editor.NotifyBodyEdited();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "AI 操作失败");
+            await Dialog("AI 操作失败", new TextBlock { Text = ex.Message, TextWrapping = TextWrapping.Wrap }, "知道了").ShowAsync();
         }
     }
 

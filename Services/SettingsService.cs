@@ -36,6 +36,7 @@ public class SettingsService : ISettingsService
 
             var json = await File.ReadAllTextAsync(AppPaths.SettingsPath);
             Current = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
+            Current.Ai ??= new AiSettings();
             if (string.IsNullOrWhiteSpace(Current.StoragePath))
             {
                 Current.StoragePath = AppPaths.BootstrapRoot;

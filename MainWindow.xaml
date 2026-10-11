@@ -101,6 +101,7 @@
                         <Button Style="{StaticResource QuietButtonStyle}" Content="更改位置" Click="ChangeStorage_Click" />
                         <Button Grid.Column="1" Style="{StaticResource QuietButtonStyle}" Content="打开目录" Click="OpenStorage_Click" />
                     </Grid>
+                    <Button Style="{StaticResource QuietButtonStyle}" Content="AI 设置" Click="AiSettings_Click" />
                 </StackPanel>
             </Grid>
         </Border>
@@ -329,6 +330,12 @@
                             Style="{StaticResource ToolbarButtonStyle}"
                             Content="移动到文件夹"
                             Click="MoveNote_Click" />
+                    <Button Grid.Column="2"
+                            Margin="0,0,112,0"
+                            HorizontalAlignment="Right"
+                            Style="{StaticResource ToolbarButtonStyle}"
+                            Content="AI 助手"
+                            Click="ShowAiAssistant_Click" />
                 </Grid>
             </Grid>
         </Border>

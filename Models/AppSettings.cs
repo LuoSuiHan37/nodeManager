@@ -23,4 +23,6 @@ public class AppSettings
     public double? WindowY { get; set; }
 
     public int AutoSaveDelay { get; set; } = 800;
+
+    public AiSettings Ai { get; set; } = new();
 }

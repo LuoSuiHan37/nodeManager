@@ -45,6 +45,8 @@ public static class AppServices
         services.AddDbContextFactory<AppDbContext>(options =>
             options.UseSqlite($"Data Source={AppPaths.DatabasePath}"));
 
+        services.AddSingleton<IAiService, AiService>();
+
         Services = services.BuildServiceProvider();
 
         await using var scope = Services.CreateAsyncScope();
