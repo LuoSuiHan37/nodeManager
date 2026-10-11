@@ -9,12 +9,13 @@
     </Window.SystemBackdrop>
 
     <Grid x:Name="RootGrid" Padding="8" ColumnSpacing="8"
-          MinWidth="840" MinHeight="600"
+          Background="{ThemeResource AppBackgroundBrush}"
+          MinWidth="800" MinHeight="600"
           SizeChanged="RootGrid_SizeChanged">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="240" MinWidth="180" />
-            <ColumnDefinition Width="360" MinWidth="260" />
-            <ColumnDefinition Width="*" MinWidth="300" />
+            <ColumnDefinition Width="248" MinWidth="188" />
+            <ColumnDefinition Width="336" MinWidth="260" />
+            <ColumnDefinition Width="*" MinWidth="320" />
         </Grid.ColumnDefinitions>
 
         <!-- Left panel -->
@@ -27,42 +28,42 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,12">
-                    <Border Width="40" Height="40" CornerRadius="10"
+                    <StackPanel Orientation="Horizontal" Spacing="14" Margin="0,0,0,18">
+                    <Border Width="52" Height="52" CornerRadius="14"
                             Background="{ThemeResource AccentFillColorDefaultBrush}">
-                        <FontIcon Glyph="&#xE70B;" FontSize="19" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                        <FontIcon Glyph="&#xE70B;" FontSize="23" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <StackPanel VerticalAlignment="Center" Spacing="0">
-                        <TextBlock FontSize="18" FontWeight="SemiBold" Text="NoteManager" />
-                        <TextBlock Style="{StaticResource MetaTextStyle}" Text="本地优先 · 安心记录" />
+                        <TextBlock FontSize="20" FontWeight="SemiBold" Text="NoteManager" />
+                        <TextBlock FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="本地优先 · 安心记录" />
                     </StackPanel>
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Spacing="4">
-                    <TextBlock Style="{StaticResource SectionLabelStyle}" Margin="4,4,0,4" Text="工作区" />
+                    <TextBlock Style="{StaticResource SectionLabelStyle}" FontSize="13" Margin="4,4,0,6" Text="工作区" />
                     <Grid Height="40">
                         <Border x:Name="AllNavIndicator" Width="3" Height="24" HorizontalAlignment="Left" CornerRadius="2" Background="{ThemeResource AccentFillColorDefaultBrush}" Opacity="1" />
-                        <Button x:Name="AllNavButton" Margin="6,0,0,0" Style="{StaticResource NavButtonStyle}" Click="ShowAll_Click">
-                            <StackPanel Orientation="Horizontal" Spacing="12"><FontIcon Glyph="&#xE8A5;" FontSize="16" /><TextBlock VerticalAlignment="Center" Text="全部笔记" /></StackPanel>
+                        <Button x:Name="AllNavButton" Margin="6,0,0,0" Style="{StaticResource SidebarNavItemStyle}" Click="ShowAll_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="14"><FontIcon Glyph="&#xE8A5;" FontSize="19" /><TextBlock FontSize="16" VerticalAlignment="Center" Text="全部笔记" /></StackPanel>
                         </Button>
                     </Grid>
                     <Grid Height="40">
                         <Border x:Name="FavoritesNavIndicator" Width="3" Height="24" HorizontalAlignment="Left" CornerRadius="2" Background="{ThemeResource AccentFillColorDefaultBrush}" Opacity="0" />
-                        <Button x:Name="FavoritesNavButton" Margin="6,0,0,0" Style="{StaticResource NavButtonStyle}" Click="ShowFavorites_Click">
-                            <StackPanel Orientation="Horizontal" Spacing="12"><FontIcon Glyph="&#xE735;" FontSize="16" /><TextBlock VerticalAlignment="Center" Text="收藏" /></StackPanel>
+                        <Button x:Name="FavoritesNavButton" Margin="6,0,0,0" Style="{StaticResource SidebarNavItemStyle}" Click="ShowFavorites_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="14"><FontIcon Glyph="&#xE735;" FontSize="19" /><TextBlock FontSize="16" VerticalAlignment="Center" Text="收藏" /></StackPanel>
                         </Button>
                     </Grid>
                     <Grid Height="40">
                         <Border x:Name="RecentNavIndicator" Width="3" Height="24" HorizontalAlignment="Left" CornerRadius="2" Background="{ThemeResource AccentFillColorDefaultBrush}" Opacity="0" />
-                        <Button x:Name="RecentNavButton" Margin="6,0,0,0" Style="{StaticResource NavButtonStyle}" Click="ShowRecent_Click">
-                            <StackPanel Orientation="Horizontal" Spacing="12"><FontIcon Glyph="&#xE823;" FontSize="16" /><TextBlock VerticalAlignment="Center" Text="最近" /></StackPanel>
+                        <Button x:Name="RecentNavButton" Margin="6,0,0,0" Style="{StaticResource SidebarNavItemStyle}" Click="ShowRecent_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="14"><FontIcon Glyph="&#xE823;" FontSize="19" /><TextBlock FontSize="16" VerticalAlignment="Center" Text="最近" /></StackPanel>
                         </Button>
                     </Grid>
                     <Grid Height="40">
                         <Border x:Name="TrashNavIndicator" Width="3" Height="24" HorizontalAlignment="Left" CornerRadius="2" Background="{ThemeResource AccentFillColorDefaultBrush}" Opacity="0" />
-                        <Button x:Name="TrashNavButton" Margin="6,0,0,0" Style="{StaticResource NavButtonStyle}" Click="ShowTrash_Click">
-                            <StackPanel Orientation="Horizontal" Spacing="12"><FontIcon Glyph="&#xE74D;" FontSize="16" /><TextBlock VerticalAlignment="Center" Text="回收站" /></StackPanel>
+                        <Button x:Name="TrashNavButton" Margin="6,0,0,0" Style="{StaticResource SidebarNavItemStyle}" Click="ShowTrash_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="14"><FontIcon Glyph="&#xE74D;" FontSize="19" /><TextBlock FontSize="16" VerticalAlignment="Center" Text="回收站" /></StackPanel>
                         </Button>
                     </Grid>
                     <Grid Margin="0,4,0,0">
@@ -77,15 +78,29 @@
                     </Grid>
                 </StackPanel>
 
-                <TreeView
+                    <TreeView
                     x:Name="FolderTree"
                     Grid.Row="2"
+                    Padding="0,4"
+                    ItemContainerStyle="{StaticResource FolderTreeItemStyle}"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto"
                     AllowDrop="True"
                     CanDragItems="False"
                     DragOver="FolderTree_DragOver"
                     Drop="FolderTree_Drop"
                     ItemInvoked="FolderTree_ItemInvoked"
-                    SelectionMode="Single" />
+                    SelectionMode="Single">
+                    <TreeView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="-12,0,0,0">
+                                <FontIcon Glyph="&#xE8B7;" FontSize="16"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                <TextBlock FontSize="14" VerticalAlignment="Center"
+                                           Text="{Binding Content.Name}" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
 
                 <StackPanel Grid.Row="3" Spacing="8" Margin="0,16,0,0">
                     <TextBlock Style="{StaticResource SectionLabelStyle}" Margin="4,0,0,0" Text="文件保存位置" />
@@ -123,26 +138,64 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Spacing="2">
-                    <TextBlock FontSize="24" FontWeight="SemiBold" Text="笔记库" />
-                    <TextBlock Style="{StaticResource SecondaryTextStyle}" Text="整理想法，专注当前最重要的内容" />
+                    <TextBlock FontSize="30" FontWeight="SemiBold" Text="笔记库" />
+                    <TextBlock FontSize="13" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="整理想法，专注当前最重要的内容" />
                 </StackPanel>
 
-                <AutoSuggestBox
-                    x:Name="SearchBox"
-                    Grid.Row="1"
-                    PlaceholderText="搜索标题或正文..."
-                    QueryIcon="Find"
-                     TextChanged="SearchBox_TextChanged"
-                     MinHeight="40" />
+                <Grid Grid.Row="1">
+                    <AutoSuggestBox
+                        x:Name="SearchBox"
+                        PlaceholderText=""
+                        GotFocus="SearchBox_GotFocus"
+                        LostFocus="SearchBox_LostFocus"
+                        TextChanged="SearchBox_TextChanged"
+                        MinHeight="40"
+                        CornerRadius="8"
+                        Padding="0">
+                        <AutoSuggestBox.TextBoxStyle>
+                            <StaticResource ResourceKey="SearchInputTextBoxStyle" />
+                        </AutoSuggestBox.TextBoxStyle>
+                    </AutoSuggestBox>
+                    <Grid x:Name="SearchPlaceholderPanel"
+                          Margin="34,0,78,0"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          IsHitTestVisible="False">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="6">
+                            <FontIcon Glyph="&#xE721;" FontSize="14"
+                                      VerticalAlignment="Center"
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock FontSize="14"
+                                       VerticalAlignment="Center"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Text="搜索标题或正文..." />
+                        </StackPanel>
+                    </Grid>
+                    <Border HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Margin="0,0,10,0" Padding="8,4"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            CornerRadius="6" IsHitTestVisible="False">
+                        <TextBlock FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Ctrl + K" />
+                    </Border>
+                </Grid>
 
                 <Button
                     Grid.Row="2"
                     HorizontalAlignment="Stretch"
-                    Content="新建笔记"
                     Click="CreateNote_Click"
-                    MinHeight="40"
+                    Height="32"
+                    MinHeight="32"
+                    Padding="8,0"
                     FontWeight="SemiBold"
-                    Style="{StaticResource AccentButtonStyle}" />
+                    Style="{StaticResource PrimaryButtonStyle}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE710;" FontSize="16" />
+                        <TextBlock VerticalAlignment="Center" Text="新建笔记" />
+                    </StackPanel>
+                </Button>
 
                 <Grid Grid.Row="3">
                     <ListView
@@ -155,24 +208,11 @@
                         SelectionMode="Single"
                         ShowsScrollingPlaceholders="False">
                         <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                                <Setter Property="Padding" Value="0" />
-                                <Setter Property="Height" Value="88" />
-                                <Setter Property="MinHeight" Value="88" />
-                                <Setter Property="MaxHeight" Value="88" />
-                                <Setter Property="Margin" Value="0" />
-                            </Style>
+                            <StaticResource ResourceKey="NoteListItemContainerStyle" />
                         </ListView.ItemContainerStyle>
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Border
-                                    Height="88"
-                                    Padding="10,8"
-                                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                    BorderThickness="0,0,0,1"
-                                    Background="Transparent">
+                                <Border Height="112" Style="{StaticResource ListItemSurfaceStyle}">
                                 <Grid ColumnSpacing="8" RowSpacing="4">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
@@ -184,21 +224,37 @@
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
                                     <TextBlock
-                                        FontSize="14"
+                                        FontSize="16"
                                         FontWeight="SemiBold"
                                         MaxLines="1"
                                         Text="{Binding Title}"
                                         TextTrimming="CharacterEllipsis"
                                         TextWrapping="NoWrap" />
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                                        <TextBlock Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" FontSize="12" Text="{Binding FavoriteMark}" />
-                                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="11" Text="{Binding PinMark}" />
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2">
+                                        <Button Style="{StaticResource NoteItemActionButtonStyle}"
+                                                Click="NoteItemFavorite_Click"
+                                                ToolTipService.ToolTip="切换收藏"
+                                                AutomationProperties.Name="收藏">
+                                            <FontIcon Glyph="&#xE734;" FontSize="14" />
+                                        </Button>
+                                        <Button Style="{StaticResource NoteItemActionButtonStyle}"
+                                                Click="NoteItemPin_Click"
+                                                ToolTipService.ToolTip="切换置顶"
+                                                AutomationProperties.Name="置顶">
+                                            <FontIcon Glyph="&#xE718;" FontSize="14" />
+                                        </Button>
+                                        <Button Style="{StaticResource NoteItemActionButtonStyle}"
+                                                Click="NoteItemDelete_Click"
+                                                ToolTipService.ToolTip="删除笔记"
+                                                AutomationProperties.Name="删除">
+                                            <FontIcon Glyph="&#xE74D;" FontSize="14" />
+                                        </Button>
                                     </StackPanel>
                                     <TextBlock
                                         Grid.Row="1"
                                         Grid.ColumnSpan="2"
                                         Height="36"
-                                        FontSize="12"
+                                        FontSize="13"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                         MaxLines="2"
                                         Text="{Binding Summary}"
@@ -207,7 +263,7 @@
                                     <TextBlock
                                         Grid.Row="2"
                                         Grid.ColumnSpan="2"
-                                        FontSize="11"
+                                        FontSize="12"
                                         Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                         Text="{Binding UpdatedAtText}" />
                                 </Grid>
@@ -228,7 +284,7 @@
                                    TextAlignment="Center" TextWrapping="Wrap"
                                    Text="创建第一篇笔记，把想法留在本地。" />
                         <Button Content="新建笔记" Click="CreateNote_Click"
-                                HorizontalAlignment="Center" Style="{StaticResource AccentButtonStyle}" />
+                                HorizontalAlignment="Center" Style="{StaticResource PrimaryButtonStyle}" />
                     </StackPanel>
                 </Grid>
 
@@ -249,33 +305,26 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <Grid ColumnSpacing="8">
+                <Grid ColumnSpacing="10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="TitleBox" Header="标题" PlaceholderText="输入笔记标题"
-                             FontSize="20" FontWeight="SemiBold" MinHeight="48"
-                             TextChanged="TitleBox_TextChanged" />
-                    <Button Grid.Column="1" VerticalAlignment="Bottom"
-                            Style="{StaticResource ToolbarButtonStyle}"
-                            Content="收藏" Click="ToggleFavorite_Click" ToolTipService.ToolTip="切换收藏" />
-                    <Button Grid.Column="2" VerticalAlignment="Bottom"
-                            Style="{StaticResource ToolbarButtonStyle}"
-                            Content="置顶" Click="TogglePin_Click" ToolTipService.ToolTip="切换置顶" />
-                    <Button x:Name="RestoreButton" Grid.Column="3" VerticalAlignment="Bottom"
-                            Style="{StaticResource ToolbarButtonStyle}"
+                    <Border x:Name="TitleSurface" Width="700" HorizontalAlignment="Left"
+                            Style="{StaticResource EditorTitleSurfaceStyle}">
+                        <Grid>
+                            <TextBox x:Name="TitleBox" PlaceholderText="输入笔记标题"
+                                     Style="{StaticResource TitleInputStyle}"
+                                     FontSize="20" FontWeight="Normal" Height="38"
+                                     TextChanged="TitleBox_TextChanged" />
+                        </Grid>
+                    </Border>
+                    <Button x:Name="RestoreButton" Grid.Column="1" VerticalAlignment="Bottom"
+                            Style="{StaticResource EditorActionButtonStyle}"
                             Content="恢复" Click="RestoreNote_Click" ToolTipService.ToolTip="从回收站恢复" />
-                    <Button Grid.Column="4" VerticalAlignment="Bottom"
-                            Style="{StaticResource ToolbarButtonStyle}"
-                            Content="删除" Click="DeleteNote_Click" ToolTipService.ToolTip="移入回收站或永久删除" />
                 </Grid>
 
-                <Border Grid.Row="1" Padding="8,6" CornerRadius="10"
-                        Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                <Border Grid.Row="1" Style="{StaticResource EditorToolbarStyle}">
                     <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -285,12 +334,13 @@
                                       HorizontalScrollBarVisibility="Hidden"
                                       VerticalScrollMode="Disabled"
                                       VerticalScrollBarVisibility="Disabled">
-                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                <Button x:Name="BoldButton" Style="{StaticResource ToolbarButtonStyle}" Content="粗体" Click="FormatBold_Click" ToolTipService.ToolTip="加粗选中文字" />
-                                <Button x:Name="ItalicButton" Style="{StaticResource ToolbarButtonStyle}" Content="斜体" Click="FormatItalic_Click" ToolTipService.ToolTip="斜体选中文字" />
-                                <Button x:Name="UnderlineButton" Style="{StaticResource ToolbarButtonStyle}" Content="下划线" Click="FormatUnderline_Click" ToolTipService.ToolTip="下划线选中文字" />
+                            <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                <TextBlock FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" Margin="4,0,2,0" Text="Aa" />
+                                <Button x:Name="BoldButton" Style="{StaticResource EditorToolbarButtonStyle}" Content="B" FontSize="16" FontWeight="Bold" Click="FormatBold_Click" ToolTipService.ToolTip="加粗选中文字" AutomationProperties.Name="粗体" />
+                                <Button x:Name="ItalicButton" Style="{StaticResource EditorToolbarButtonStyle}" Content="I" FontSize="16" FontStyle="Italic" Click="FormatItalic_Click" ToolTipService.ToolTip="斜体选中文字" AutomationProperties.Name="斜体" />
+                                <Button x:Name="UnderlineButton" Style="{StaticResource EditorToolbarButtonStyle}" Content="U" FontSize="16" Click="FormatUnderline_Click" ToolTipService.ToolTip="下划线选中文字" AutomationProperties.Name="下划线" />
                                 <Border Width="1" Height="18" VerticalAlignment="Center" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Opacity="0.5" />
-                                <TextBlock VerticalAlignment="Center" FontSize="12" Opacity="0.7" Text="字号" />
+                                <TextBlock VerticalAlignment="Center" FontSize="12" Opacity="0.7" Margin="4,0,0,0" Text="字号" />
                                 <ComboBox x:Name="FontSizeCombo"
                                           Width="68"
                                           MinWidth="68"
@@ -309,29 +359,29 @@
                                     <x:Double>36</x:Double>
                                 </ComboBox>
                                 <Border Width="1" Height="18" VerticalAlignment="Center" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Opacity="0.5" />
-                                <TextBlock VerticalAlignment="Center" FontSize="12" Opacity="0.7" Text="颜色" />
-                                <Button Style="{StaticResource ToolbarButtonStyle}" MinWidth="32" Padding="8,6" Click="FormatColor_Click" Tag="#1A1A1A" ToolTipService.ToolTip="黑色">
-                                    <Ellipse Width="12" Height="12" Fill="#1A1A1A" />
+                                <TextBlock VerticalAlignment="Center" FontSize="12" Opacity="0.7" Margin="4,0,0,0" Text="颜色" />
+                                    <Button Style="{StaticResource EditorToolbarButtonStyle}" MinWidth="32" Padding="8,6" Click="FormatColor_Click" Tag="#1A1A1A" ToolTipService.ToolTip="黑色">
+                                    <Ellipse Style="{StaticResource TagColorDotStyle}" Fill="{ThemeResource TextFillColorPrimaryBrush}" />
                                 </Button>
-                                <Button Style="{StaticResource ToolbarButtonStyle}" MinWidth="32" Padding="8,6" Click="FormatColor_Click" Tag="#D13438" ToolTipService.ToolTip="红色">
-                                    <Ellipse Width="12" Height="12" Fill="#D13438" />
+                                    <Button Style="{StaticResource EditorToolbarButtonStyle}" MinWidth="32" Padding="8,6" Click="FormatColor_Click" Tag="#D13438" ToolTipService.ToolTip="红色">
+                                    <Ellipse Style="{StaticResource TagColorDotStyle}" Fill="{StaticResource EditorRedBrush}" />
                                 </Button>
-                                <Button Style="{StaticResource ToolbarButtonStyle}" MinWidth="32" Padding="8,6" Click="FormatColor_Click" Tag="#107C10" ToolTipService.ToolTip="绿色">
-                                    <Ellipse Width="12" Height="12" Fill="#107C10" />
+                                    <Button Style="{StaticResource EditorToolbarButtonStyle}" MinWidth="32" Padding="8,6" Click="FormatColor_Click" Tag="#107C10" ToolTipService.ToolTip="绿色">
+                                    <Ellipse Style="{StaticResource TagColorDotStyle}" Fill="{StaticResource EditorGreenBrush}" />
                                 </Button>
-                                <Button Style="{StaticResource ToolbarButtonStyle}" MinWidth="32" Padding="8,6" Click="FormatColor_Click" Tag="#0078D4" ToolTipService.ToolTip="蓝色">
-                                    <Ellipse Width="12" Height="12" Fill="#0078D4" />
+                                    <Button Style="{StaticResource EditorToolbarButtonStyle}" MinWidth="32" Padding="8,6" Click="FormatColor_Click" Tag="#0078D4" ToolTipService.ToolTip="蓝色">
+                                    <Ellipse Style="{StaticResource TagColorDotStyle}" Fill="{StaticResource EditorBlueBrush}" />
                                 </Button>
-                                <Button Style="{StaticResource ToolbarButtonStyle}" MinWidth="32" Padding="8,6" Click="FormatColor_Click" Tag="#C43E1C" ToolTipService.ToolTip="橙色">
-                                    <Ellipse Width="12" Height="12" Fill="#C43E1C" />
+                                    <Button Style="{StaticResource EditorToolbarButtonStyle}" MinWidth="32" Padding="8,6" Click="FormatColor_Click" Tag="#C43E1C" ToolTipService.ToolTip="橙色">
+                                    <Ellipse Style="{StaticResource TagColorDotStyle}" Fill="{StaticResource EditorOrangeBrush}" />
                                 </Button>
-                                <Button Style="{StaticResource ToolbarButtonStyle}" MinWidth="32" Padding="8,6" Click="FormatColor_Click" Tag="#8764B8" ToolTipService.ToolTip="紫色">
-                                    <Ellipse Width="12" Height="12" Fill="#8764B8" />
+                                    <Button Style="{StaticResource EditorToolbarButtonStyle}" MinWidth="32" Padding="8,6" Click="FormatColor_Click" Tag="#8764B8" ToolTipService.ToolTip="紫色">
+                                    <Ellipse Style="{StaticResource TagColorDotStyle}" Fill="{StaticResource EditorPurpleBrush}" />
                                 </Button>
                                 <Border Width="1" Height="18" VerticalAlignment="Center" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Opacity="0.5" />
-                                <Button Style="{StaticResource ToolbarButtonStyle}" Content="标题" Click="FormatHeading_Click" ToolTipService.ToolTip="选中文字设为标题" />
-                                <Button Style="{StaticResource ToolbarButtonStyle}" Content="列表" Click="FormatList_Click" ToolTipService.ToolTip="项目符号列表" />
-                                <Button Style="{StaticResource ToolbarButtonStyle}" Content="清除格式" Click="FormatClear_Click" ToolTipService.ToolTip="清除选中文字格式" />
+                                <Button Style="{StaticResource EditorToolbarButtonStyle}" Content="标题" Click="FormatHeading_Click" ToolTipService.ToolTip="选中文字设为标题" />
+                                <Button Style="{StaticResource EditorToolbarButtonStyle}" Content="列表" Click="FormatList_Click" ToolTipService.ToolTip="项目符号列表" />
+                                <Button Style="{StaticResource EditorToolbarButtonStyle}" Content="清除格式" Click="FormatClear_Click" ToolTipService.ToolTip="清除选中文字格式" />
                             </StackPanel>
                         </ScrollViewer>
                         <TextBlock x:Name="SaveStatusText"
@@ -344,33 +394,42 @@
                     </Grid>
                 </Border>
 
-                <RichEditBox
-                    x:Name="EditorBox"
-                    Grid.Row="2"
-                    Padding="12"
-                    VerticalContentAlignment="Top"
-                    HorizontalContentAlignment="Stretch"
-                    PlaceholderText="选中文字后，可用上方工具栏调整字号、加粗、颜色…"
-                    TextChanged="EditorBox_TextChanged"
-                    SelectionChanged="EditorBox_SelectionChanged" />
+                <Border Grid.Row="2" Style="{StaticResource EditorContentSurfaceStyle}">
+                    <RichEditBox
+                        x:Name="EditorBox"
+                        Padding="8"
+                        VerticalContentAlignment="Top"
+                        HorizontalContentAlignment="Stretch"
+                        PlaceholderText="开始记录…"
+                        BorderThickness="0"
+                        Background="Transparent"
+                        TextChanged="EditorBox_TextChanged"
+                        SelectionChanged="EditorBox_SelectionChanged" />
+                </Border>
 
-                <Grid Grid.Row="3" ColumnSpacing="12">
+                <Grid Grid.Row="3" ColumnSpacing="10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="CreatedAtText" Style="{StaticResource MetaTextStyle}" />
-                    <TextBlock x:Name="UpdatedAtText" Grid.Column="1" Style="{StaticResource MetaTextStyle}" />
-                    <Button Grid.Column="2"
-                            Style="{StaticResource ToolbarButtonStyle}"
+                    <Border Grid.Column="1" Width="1" Height="18" Margin="8,0" VerticalAlignment="Center" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Opacity="0.6" />
+                    <TextBlock x:Name="UpdatedAtText" Grid.Column="2" Style="{StaticResource MetaTextStyle}" />
+                    <Button Grid.Column="3"
+                            Style="{StaticResource EditorActionButtonStyle}"
                             Content="移动到文件夹"
                             Click="MoveNote_Click" />
-                    <Button Grid.Column="3"
-                            Style="{StaticResource ToolbarButtonStyle}"
-                            Content="AI 助手"
-                            Click="ShowAiAssistant_Click" />
+                    <Button Grid.Column="4"
+                            Style="{StaticResource EditorActionButtonStyle}"
+                            Click="ShowAiAssistant_Click" ToolTipService.ToolTip="打开 AI 助手">
+                        <StackPanel Orientation="Horizontal" Spacing="7">
+                            <FontIcon Glyph="&#xE734;" FontSize="15" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                            <TextBlock VerticalAlignment="Center" Text="AI 助手" />
+                        </StackPanel>
+                    </Button>
                 </Grid>
             </Grid>
         </Border>

@@ -3,6 +3,7 @@ using Microsoft.UI.Text;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using NoteManager.Helpers;
 using NoteManager.Models;
 using NoteManager.Services;
@@ -100,8 +101,13 @@ public sealed partial class MainWindow : Window
         FavoritesNavButton.FontWeight = FontWeights.Normal;
         RecentNavButton.FontWeight = FontWeights.Normal;
         TrashNavButton.FontWeight = FontWeights.Normal;
+        AllNavButton.Background = GetThemeBrush("NavButtonBackgroundBrush");
+        FavoritesNavButton.Background = GetThemeBrush("NavButtonBackgroundBrush");
+        RecentNavButton.Background = GetThemeBrush("NavButtonBackgroundBrush");
+        TrashNavButton.Background = GetThemeBrush("NavButtonBackgroundBrush");
         activeIndicator.Opacity = 1;
         activeButton.FontWeight = FontWeights.SemiBold;
+        activeButton.Background = GetThemeBrush("NavSelectedBackgroundBrush");
     }
 
     private void ClearActiveNavigation()
@@ -114,6 +120,15 @@ public sealed partial class MainWindow : Window
         FavoritesNavButton.FontWeight = FontWeights.Normal;
         RecentNavButton.FontWeight = FontWeights.Normal;
         TrashNavButton.FontWeight = FontWeights.Normal;
+        AllNavButton.Background = GetThemeBrush("NavButtonBackgroundBrush");
+        FavoritesNavButton.Background = GetThemeBrush("NavButtonBackgroundBrush");
+        RecentNavButton.Background = GetThemeBrush("NavButtonBackgroundBrush");
+        TrashNavButton.Background = GetThemeBrush("NavButtonBackgroundBrush");
+    }
+
+    private static Brush GetThemeBrush(string key)
+    {
+        return (Brush)Application.Current.Resources[key];
     }
 
     private void RootGrid_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -126,17 +141,24 @@ public sealed partial class MainWindow : Window
         }
 
         var width = e.NewSize.Width;
-        var navigationWidth = width < 1000 ? 200 : 240;
-        var listWidth = width < 1000 ? 300 : 360;
+        var navigationWidth = width < 1000 ? 208 : 248;
+        var listWidth = width < 1000 ? 292 : 336;
         if (width < 900)
         {
-            navigationWidth = 180;
+            navigationWidth = 188;
             listWidth = 260;
         }
 
         RootGrid.ColumnDefinitions[0].Width = new GridLength(navigationWidth);
         RootGrid.ColumnDefinitions[1].Width = new GridLength(listWidth);
         RootGrid.ColumnDefinitions[2].Width = new GridLength(1, GridUnitType.Star);
+
+        // Keep the title field readable and leave the note actions visible beside it.
+        // It scales with the window instead of allowing the editor header to consume the full row.
+        var titleWidth = width < 1100
+            ? Math.Max(320, width - navigationWidth - listWidth - 360)
+            : Math.Min(720, Math.Max(480, width * 0.36));
+        TitleSurface.Width = titleWidth;
     }
 
     private void BindLists()
@@ -498,11 +520,26 @@ public sealed partial class MainWindow : Window
 
     private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
+        SearchPlaceholderPanel.Visibility = string.IsNullOrEmpty(sender.Text)
+            ? Visibility.Visible
+            : Visibility.Collapsed;
         if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
             ViewModel.SearchText = sender.Text;
             _ = RefreshNotesUiAsync();
         }
+    }
+
+    private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
+    {
+        SearchPlaceholderPanel.Visibility = Visibility.Collapsed;
+    }
+
+    private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        SearchPlaceholderPanel.Visibility = string.IsNullOrEmpty(SearchBox.Text)
+            ? Visibility.Visible
+            : Visibility.Collapsed;
     }
 
     private async Task RefreshNotesUiAsync()
@@ -565,6 +602,44 @@ public sealed partial class MainWindow : Window
             await ViewModel.SelectNoteCommand.ExecuteAsync(note);
             RefreshEditorChrome();
         }
+    }
+
+    private async Task SelectNoteForItemActionAsync(NoteItemViewModel note)
+    {
+        if (_isLoading) return;
+
+        _suppressNoteListSelection = true;
+        NoteList.SelectedItem = note;
+        _suppressNoteListSelection = false;
+
+        await ViewModel.Editor.FlushPendingSaveAsync();
+        await ViewModel.SelectNoteCommand.ExecuteAsync(note);
+        RefreshEditorChrome();
+    }
+
+    private async void NoteItemFavorite_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not NoteItemViewModel note) return;
+        await SelectNoteForItemActionAsync(note);
+        await ViewModel.ToggleFavoriteCommand.ExecuteAsync(null);
+        await RefreshNotesUiAsync();
+        RefreshEditorChrome();
+    }
+
+    private async void NoteItemPin_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not NoteItemViewModel note) return;
+        await SelectNoteForItemActionAsync(note);
+        await ViewModel.TogglePinCommand.ExecuteAsync(null);
+        await RefreshNotesUiAsync();
+        RefreshEditorChrome();
+    }
+
+    private async void NoteItemDelete_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is not NoteItemViewModel note) return;
+        await SelectNoteForItemActionAsync(note);
+        await DeleteSelectedNoteAsync();
     }
 
     private async void FolderTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
@@ -703,6 +778,11 @@ public sealed partial class MainWindow : Window
     }
 
     private async void DeleteNote_Click(object sender, RoutedEventArgs e)
+    {
+        await DeleteSelectedNoteAsync();
+    }
+
+    private async Task DeleteSelectedNoteAsync()
     {
         if (!ViewModel.Editor.HasNote) return;
         var trash = ViewModel.Editor.IsDeleted;
