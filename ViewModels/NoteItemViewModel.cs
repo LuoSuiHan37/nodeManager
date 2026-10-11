@@ -31,6 +31,12 @@ public partial class NoteItemViewModel : ObservableObject
     private bool _isDeleted;
 
     [ObservableProperty]
+    private bool _isSelected;
+
+    [ObservableProperty]
+    private double _selectedOverlayOpacity;
+
+    [ObservableProperty]
     private Guid? _folderId;
 
     public string UpdatedAtText => UpdatedAt.ToString("yyyy-MM-dd HH:mm");

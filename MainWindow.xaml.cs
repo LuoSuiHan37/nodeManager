@@ -40,6 +40,7 @@ public sealed partial class MainWindow : Window
         _noteService = AppServices.GetRequiredService<INoteService>();
         _folderService = AppServices.GetRequiredService<IFolderService>();
         InitializeComponent();
+        ConfigureTitleBar();
         try { AppWindow.SetIcon("Assets/AppIcon.ico"); } catch { }
         ApplyWindowBounds();
         Closed += OnClosed;
@@ -51,6 +52,27 @@ public sealed partial class MainWindow : Window
                 DispatcherQueue.TryEnqueue(() => StatusText.Text = ViewModel.StatusMessage);
             }
         };
+    }
+
+    private void ConfigureTitleBar()
+    {
+        // Extend the client area into the native caption area and designate only
+        // the empty top strip as draggable. The minimize/maximize/close buttons
+        // remain the OS-rendered buttons supplied by Windows.
+        ExtendsContentIntoTitleBar = true;
+        SetTitleBar(AppTitleBar);
+
+        // Keep the native buttons visually continuous with the app surface while
+        // retaining their system hit-testing, hover states and DPI behavior.
+        var titleBar = AppWindow.TitleBar;
+        titleBar.ExtendsContentIntoTitleBar = true;
+        titleBar.ButtonBackgroundColor = Colors.Transparent;
+        titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+        // ExtendsContentIntoTitleBar already keeps the native caption buttons
+        // while allowing the app content to occupy the title-bar area. Do not
+        // call SetBorderAndTitleBar(false, true): WinUI rejects that combination
+        // because a title bar requires the native border to remain enabled.
     }
 
     private async void OnActivated(object sender, WindowActivatedEventArgs args)
@@ -71,6 +93,7 @@ public sealed partial class MainWindow : Window
                 _suppressNoteListSelection = true;
                 NoteList.SelectedItem = ViewModel.Notes[0];
                 _suppressNoteListSelection = false;
+                SyncNoteSelectionVisual();
                 await ViewModel.SelectNoteCommand.ExecuteAsync(ViewModel.Notes[0]);
                 RefreshEditorChrome();
             }
@@ -106,7 +129,7 @@ public sealed partial class MainWindow : Window
         RecentNavButton.Background = GetThemeBrush("NavButtonBackgroundBrush");
         TrashNavButton.Background = GetThemeBrush("NavButtonBackgroundBrush");
         activeIndicator.Opacity = 1;
-        activeButton.FontWeight = FontWeights.SemiBold;
+        activeButton.FontWeight = FontWeights.Normal;
         activeButton.Background = GetThemeBrush("NavSelectedBackgroundBrush");
     }
 
@@ -153,12 +176,8 @@ public sealed partial class MainWindow : Window
         RootGrid.ColumnDefinitions[1].Width = new GridLength(listWidth);
         RootGrid.ColumnDefinitions[2].Width = new GridLength(1, GridUnitType.Star);
 
-        // Keep the title field readable and leave the note actions visible beside it.
-        // It scales with the window instead of allowing the editor header to consume the full row.
-        var titleWidth = width < 1100
-            ? Math.Max(320, width - navigationWidth - listWidth - 360)
-            : Math.Min(720, Math.Max(480, width * 0.36));
-        TitleSurface.Width = titleWidth;
+        // The title surface fills the editor header through its star-sized grid column.
+        // The restore action, when visible, automatically takes the remaining space.
     }
 
     private void BindLists()
@@ -547,6 +566,11 @@ public sealed partial class MainWindow : Window
         await ViewModel.RefreshNotesAsync(keepSelection: true);
         NoteList.ItemsSource = null;
         NoteList.ItemsSource = ViewModel.Notes;
+        if (ViewModel.SelectedNote is not null)
+        {
+            NoteList.SelectedItem = ViewModel.SelectedNote;
+        }
+        SyncNoteSelectionVisual();
         RefreshEmptyState();
         StatusText.Text = ViewModel.StatusMessage;
     }
@@ -594,6 +618,7 @@ public sealed partial class MainWindow : Window
 
     private async void NoteList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        SyncNoteSelectionVisual();
         if (_isLoading || _suppressNoteListSelection) return;
         if (NoteList.SelectedItem is NoteItemViewModel note)
         {
@@ -611,10 +636,22 @@ public sealed partial class MainWindow : Window
         _suppressNoteListSelection = true;
         NoteList.SelectedItem = note;
         _suppressNoteListSelection = false;
+        SyncNoteSelectionVisual();
 
         await ViewModel.Editor.FlushPendingSaveAsync();
         await ViewModel.SelectNoteCommand.ExecuteAsync(note);
         RefreshEditorChrome();
+    }
+
+    private void SyncNoteSelectionVisual()
+    {
+        var selected = NoteList.SelectedItem as NoteItemViewModel;
+        foreach (var note in ViewModel.Notes)
+        {
+            var isSelected = selected?.Id == note.Id;
+            note.IsSelected = isSelected;
+            note.SelectedOverlayOpacity = isSelected ? 1 : 0;
+        }
     }
 
     private async void NoteItemFavorite_Click(object sender, RoutedEventArgs e)

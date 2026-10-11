@@ -21,6 +21,21 @@ public sealed class BoolToVisibilityConverter : IValueConverter
         value is Visibility.Visible;
 }
 
+public sealed class BoolToBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        var isSelected = value is true;
+        var isBorder = parameter is string p && p.Equals("Border", StringComparison.OrdinalIgnoreCase);
+        var key = isBorder
+            ? (isSelected ? "AccentFillColorDefaultBrush" : "CardStrokeColorDefaultBrush")
+            : (isSelected ? "ListSelectedBackgroundBrush" : "CardBackgroundFillColorDefaultBrush");
+        return Application.Current.Resources[key];
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => null!;
+}
+
 public sealed class SaveStatusToTextConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)

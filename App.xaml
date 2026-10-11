@@ -13,13 +13,13 @@
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
                     <SolidColorBrush x:Key="AppBackgroundBrush" Color="#EAF3FF" />
-                    <SolidColorBrush x:Key="NavSelectedBackgroundBrush" Color="#DCEBFF" />
-                    <SolidColorBrush x:Key="ListSelectedBackgroundBrush" Color="#E5F0FF" />
+                    <SolidColorBrush x:Key="NavSelectedBackgroundBrush" Color="#F3F3F3" />
+                    <SolidColorBrush x:Key="ListSelectedBackgroundBrush" Color="#FFFFFF" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <SolidColorBrush x:Key="AppBackgroundBrush" Color="#1B2028" />
-                    <SolidColorBrush x:Key="NavSelectedBackgroundBrush" Color="#203A5F" />
-                    <SolidColorBrush x:Key="ListSelectedBackgroundBrush" Color="#253B59" />
+                    <SolidColorBrush x:Key="NavSelectedBackgroundBrush" Color="#2B3139" />
+                    <SolidColorBrush x:Key="ListSelectedBackgroundBrush" Color="#252D38" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="HighContrast">
                     <SolidColorBrush x:Key="AppBackgroundBrush" Color="{ThemeResource SystemColorWindowColor}" />
@@ -29,6 +29,7 @@
             </ResourceDictionary.ThemeDictionaries>
 
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:BoolToBrushConverter x:Key="BoolToBrushConverter" />
             <converters:SaveStatusToTextConverter x:Key="SaveStatusToTextConverter" />
             <converters:DateTimeToLocalStringConverter x:Key="DateTimeToLocalStringConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
@@ -56,28 +57,31 @@
 
             <!-- Semantic surface tokens: every pane uses the same light/dark-aware palette. -->
             <Style x:Key="PaneBorderStyle" TargetType="Border">
-                <Setter Property="BorderBrush" Value="{ThemeResource DividerStrokeColorDefaultBrush}" />
-                <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="CornerRadius" Value="{StaticResource PanelCorner}" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="CornerRadius" Value="0" />
             </Style>
 
             <Style x:Key="PanelBorderStyle" TargetType="Border" BasedOn="{StaticResource PaneBorderStyle}">
-                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="Background" Value="Transparent" />
                 <Setter Property="Padding" Value="{StaticResource PanelPadding}" />
             </Style>
 
             <Style x:Key="NavigationSurfaceStyle" TargetType="Border" BasedOn="{StaticResource PanelBorderStyle}">
+                <!-- The navigation is the only intentionally tinted pane. It gives
+                     the workbench a quiet anchor without reading as a card. -->
                 <Setter Property="Background" Value="{ThemeResource AcrylicInAppFillColorDefaultBrush}" />
-                <Setter Property="Padding" Value="16" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="12" />
             </Style>
 
             <Style x:Key="WorkspaceSurfaceStyle" TargetType="Border" BasedOn="{StaticResource PanelBorderStyle}">
-                <Setter Property="Background" Value="{ThemeResource LayerFillColorDefaultBrush}" />
+                <Setter Property="Background" Value="{ThemeResource LayerFillColorAltBrush}" />
                 <Setter Property="Padding" Value="20,18" />
+                <Setter Property="CornerRadius" Value="10" />
             </Style>
 
             <Style x:Key="EditorSurfaceStyle" TargetType="Border" BasedOn="{StaticResource PanelBorderStyle}">
-                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="Background" Value="{ThemeResource LayerFillColorDefaultBrush}" />
                 <Setter Property="Padding" Value="24,22" />
             </Style>
 
@@ -89,10 +93,11 @@
             </Style>
 
             <Style x:Key="EditorTitleSurfaceStyle" TargetType="Border" BasedOn="{StaticResource PaneBorderStyle}">
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="Padding" Value="0" />
-                <Setter Property="CornerRadius" Value="0" />
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Padding" Value="10,5" />
+                <Setter Property="CornerRadius" Value="10" />
             </Style>
 
             <Style x:Key="EditorContentSurfaceStyle" TargetType="Border" BasedOn="{StaticResource PaneBorderStyle}">
@@ -103,18 +108,24 @@
 
             <Style x:Key="ListItemSurfaceStyle" TargetType="Border">
                 <Setter Property="Background" Value="Transparent" />
-                <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="Padding" Value="14,10" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="14,10,12,10" />
             </Style>
 
             <Style x:Key="NoteListItemContainerStyle" TargetType="ListViewItem">
                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                 <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="10" />
                 <Setter Property="Padding" Value="0" />
                 <Setter Property="Height" Value="112" />
                 <Setter Property="MinHeight" Value="112" />
                 <Setter Property="MaxHeight" Value="112" />
-                <Setter Property="Margin" Value="0,0,0,8" />
+                <Setter Property="Margin" Value="0,0,0,10" />
             </Style>
 
             <Style x:Key="NoteItemActionButtonStyle" TargetType="Button">
@@ -139,8 +150,8 @@
             <Style x:Key="NavButtonStyle" TargetType="Button">
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="HorizontalContentAlignment" Value="Left" />
-                <Setter Property="MinHeight" Value="40" />
-                <Setter Property="Padding" Value="12,7" />
+                <Setter Property="MinHeight" Value="32" />
+                <Setter Property="Padding" Value="8,4" />
                 <Setter Property="CornerRadius" Value="8" />
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="0" />
@@ -220,21 +231,29 @@
             <Style x:Key="TitleInputStyle" TargetType="TextBox">
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="Padding" Value="5,0,0,0" />
+                <Setter Property="Padding" Value="0" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
-                <Setter Property="HorizontalContentAlignment" Value="Left" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="TextAlignment" Value="Center" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TextBox">
                             <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
                                     Padding="{TemplateBinding Padding}">
-                                <ScrollViewer x:Name="ContentElement"
-                                              HorizontalScrollBarVisibility="Hidden"
-                                              VerticalScrollBarVisibility="Hidden"
-                                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                              IsTabStop="False"
-                                              ZoomMode="Disabled" />
+                                <Grid VerticalAlignment="Center">
+                                    <ScrollViewer x:Name="ContentElement"
+                                                  Height="24"
+                                                  HorizontalAlignment="Stretch"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalScrollBarVisibility="Hidden"
+                                                  VerticalScrollBarVisibility="Hidden"
+                                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalContentAlignment="Center"
+                                                  IsTabStop="False"
+                                                  ZoomMode="Disabled" />
+                                </Grid>
                             </Border>
                         </ControlTemplate>
                     </Setter.Value>
