@@ -60,6 +60,7 @@ public sealed partial class MainWindow : Window
             Log.Information("OnActivated begin");
             await ViewModel.InitializeAsync();
             BindLists();
+            SetActiveNavigation(AllNavIndicator, AllNavButton);
             ViewModel.Editor.PropertyChanged += Editor_PropertyChanged;
             ViewModel.Editor.ContentProvider = ReadEditorRtf;
             ViewModel.Editor.PlainTextProvider = ReadEditorPlain;
@@ -89,10 +90,67 @@ public sealed partial class MainWindow : Window
         StoragePathText.Text = AppPaths.RootDirectory;
     }
 
+    private void SetActiveNavigation(Border activeIndicator, Button activeButton)
+    {
+        AllNavIndicator.Opacity = 0;
+        FavoritesNavIndicator.Opacity = 0;
+        RecentNavIndicator.Opacity = 0;
+        TrashNavIndicator.Opacity = 0;
+        AllNavButton.FontWeight = FontWeights.Normal;
+        FavoritesNavButton.FontWeight = FontWeights.Normal;
+        RecentNavButton.FontWeight = FontWeights.Normal;
+        TrashNavButton.FontWeight = FontWeights.Normal;
+        activeIndicator.Opacity = 1;
+        activeButton.FontWeight = FontWeights.SemiBold;
+    }
+
+    private void ClearActiveNavigation()
+    {
+        AllNavIndicator.Opacity = 0;
+        FavoritesNavIndicator.Opacity = 0;
+        RecentNavIndicator.Opacity = 0;
+        TrashNavIndicator.Opacity = 0;
+        AllNavButton.FontWeight = FontWeights.Normal;
+        FavoritesNavButton.FontWeight = FontWeights.Normal;
+        RecentNavButton.FontWeight = FontWeights.Normal;
+        TrashNavButton.FontWeight = FontWeights.Normal;
+    }
+
+    private void RootGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        // Keep all three work areas usable when the window is resized across common desktop widths.
+        // The editor retains the largest share of space because it is the primary work surface.
+        if (RootGrid.ColumnDefinitions.Count < 3)
+        {
+            return;
+        }
+
+        var width = e.NewSize.Width;
+        var navigationWidth = width < 1000 ? 200 : 240;
+        var listWidth = width < 1000 ? 300 : 360;
+        if (width < 900)
+        {
+            navigationWidth = 180;
+            listWidth = 260;
+        }
+
+        RootGrid.ColumnDefinitions[0].Width = new GridLength(navigationWidth);
+        RootGrid.ColumnDefinitions[1].Width = new GridLength(listWidth);
+        RootGrid.ColumnDefinitions[2].Width = new GridLength(1, GridUnitType.Star);
+    }
+
     private void BindLists()
     {
         NoteList.ItemsSource = ViewModel.Notes;
+        RefreshEmptyState();
         RebuildFolderTree();
+    }
+
+    private void RefreshEmptyState()
+    {
+        EmptyStatePanel.Visibility = ViewModel.Notes.Count == 0
+            ? Visibility.Visible
+            : Visibility.Collapsed;
     }
 
     private void RebuildFolderTree()
@@ -452,6 +510,7 @@ public sealed partial class MainWindow : Window
         await ViewModel.RefreshNotesAsync(keepSelection: true);
         NoteList.ItemsSource = null;
         NoteList.ItemsSource = ViewModel.Notes;
+        RefreshEmptyState();
         StatusText.Text = ViewModel.StatusMessage;
     }
 
@@ -463,24 +522,28 @@ public sealed partial class MainWindow : Window
 
     private async void ShowAll_Click(object sender, RoutedEventArgs e)
     {
+        SetActiveNavigation(AllNavIndicator, AllNavButton);
         await ViewModel.ShowAllCommand.ExecuteAsync(null);
         await RefreshNotesUiAsync();
     }
 
     private async void ShowFavorites_Click(object sender, RoutedEventArgs e)
     {
+        SetActiveNavigation(FavoritesNavIndicator, FavoritesNavButton);
         await ViewModel.ShowFavoritesCommand.ExecuteAsync(null);
         await RefreshNotesUiAsync();
     }
 
     private async void ShowRecent_Click(object sender, RoutedEventArgs e)
     {
+        SetActiveNavigation(RecentNavIndicator, RecentNavButton);
         await ViewModel.ShowRecentCommand.ExecuteAsync(null);
         await RefreshNotesUiAsync();
     }
 
     private async void ShowTrash_Click(object sender, RoutedEventArgs e)
     {
+        SetActiveNavigation(TrashNavIndicator, TrashNavButton);
         await ViewModel.ShowTrashCommand.ExecuteAsync(null);
         await RefreshNotesUiAsync();
     }
@@ -507,6 +570,7 @@ public sealed partial class MainWindow : Window
     private async void FolderTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
     {
         if (_isLoading) return;
+        ClearActiveNavigation();
         FolderItemViewModel? folder = args.InvokedItem as FolderItemViewModel
             ?? (args.InvokedItem as TreeViewNode)?.Content as FolderItemViewModel;
         if (folder is null) return;

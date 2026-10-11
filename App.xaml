@@ -15,9 +15,16 @@
             <converters:DateTimeToLocalStringConverter x:Key="DateTimeToLocalStringConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
 
-            <CornerRadius x:Key="PanelCorner">14</CornerRadius>
-            <Thickness x:Key="PanelPadding">16</Thickness>
+            <!-- Fluent 2 design tokens: keep surfaces semantic so Light/Dark stay in sync. -->
+            <!-- Joplin-inspired desktop workbench tokens: compact, content-first, low ornament. -->
+            <CornerRadius x:Key="PanelCorner">6</CornerRadius>
+            <CornerRadius x:Key="ControlCorner">4</CornerRadius>
+            <Thickness x:Key="PanelPadding">12</Thickness>
             <x:Double x:Key="NavIconSize">16</x:Double>
+            <x:Double x:Key="ControlHeight">36</x:Double>
+            <x:Double x:Key="CompactControlHeight">32</x:Double>
+            <x:Double x:Key="BodyFontSize">14</x:Double>
+            <x:Double x:Key="SecondaryFontSize">12</x:Double>
 
             <Style x:Key="PanelBorderStyle" TargetType="Border">
                 <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
@@ -27,36 +34,62 @@
                 <Setter Property="Padding" Value="{StaticResource PanelPadding}" />
             </Style>
 
+            <Style x:Key="NavigationSurfaceStyle" TargetType="Border" BasedOn="{StaticResource PanelBorderStyle}">
+                <Setter Property="Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}" />
+                <Setter Property="Padding" Value="10" />
+            </Style>
+
+            <Style x:Key="WorkspaceSurfaceStyle" TargetType="Border" BasedOn="{StaticResource PanelBorderStyle}">
+                <Setter Property="Padding" Value="16" />
+            </Style>
+
+            <Style x:Key="EditorSurfaceStyle" TargetType="Border" BasedOn="{StaticResource PanelBorderStyle}">
+                <Setter Property="Padding" Value="20" />
+            </Style>
+
             <Style x:Key="NavButtonStyle" TargetType="Button">
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="HorizontalContentAlignment" Value="Left" />
-                <Setter Property="Padding" Value="12,10" />
-                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="MinHeight" Value="36" />
+                <Setter Property="Padding" Value="10,6" />
+                <Setter Property="CornerRadius" Value="4" />
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
             </Style>
 
             <Style x:Key="ToolbarButtonStyle" TargetType="Button">
+                <Setter Property="MinHeight" Value="{StaticResource CompactControlHeight}" />
                 <Setter Property="Padding" Value="10,6" />
                 <Setter Property="MinWidth" Value="40" />
-                <Setter Property="CornerRadius" Value="6" />
-                <Setter Property="FontSize" Value="13" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="FontSize" Value="{StaticResource SecondaryFontSize}" />
             </Style>
 
             <Style x:Key="QuietButtonStyle" TargetType="Button">
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="Padding" Value="10,8" />
-                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="MinHeight" Value="{StaticResource CompactControlHeight}" />
+                <Setter Property="Padding" Value="10,6" />
+                <Setter Property="CornerRadius" Value="4" />
                 <Setter Property="Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
             </Style>
 
+            <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+                <Setter Property="FontSize" Value="{StaticResource SecondaryFontSize}" />
+            </Style>
+
+            <Style x:Key="MetaTextStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorTertiaryBrush}" />
+                <Setter Property="FontSize" Value="11" />
+            </Style>
+
             <Style x:Key="SectionLabelStyle" TargetType="TextBlock">
-                <Setter Property="Opacity" Value="0.65" />
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
                 <Setter Property="FontSize" Value="12" />
                 <Setter Property="FontWeight" Value="SemiBold" />
-                <Setter Property="Margin" Value="4,12,0,6" />
+                <Setter Property="Margin" Value="4,16,0,6" />
                 <Setter Property="CharacterSpacing" Value="20" />
             </Style>
         </ResourceDictionary>
